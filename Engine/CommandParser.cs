@@ -44,7 +44,7 @@ public class CommandParser
             case "status":
             case "sheet":
             case "char":
-                _term.CharacterSheet(_state.Player);
+                _term.CharacterSheet(_state.Player, _state.UpgradePoints);
                 break;
             case "inventory":
             case "inv":
@@ -76,7 +76,16 @@ public class CommandParser
             case "ashop":
                 ArmorShop();
                 break;
+            case "sell":
+                SellShop();
+                break;
+            case "sellv":
+                SellVehicle();
+                break;
             case "talk":
+                Talk();
+                break;
+            case "t":
                 Talk();
                 break;
             case "search":
@@ -88,6 +97,10 @@ public class CommandParser
                 break;
             case "rest":
                 Rest();
+                break;
+            case "upgrade":
+            case "levelup":
+                Upgrade(arg);
                 break;
             case "roll":
                 ManualRoll(arg);
@@ -199,6 +212,11 @@ public class CommandParser
 
         Look();
         ShowAmbient();
+
+        // Space encounters take priority in IsSpace locations when player is in a ship
+        if (_state.CurrentLocation.IsSpace && _state.Player.InSpaceVehicle)
+            CheckSpaceEncounter();
+
         CheckEncounter();
     }
 
@@ -273,6 +291,90 @@ public class CommandParser
                 {
                     _state.EnemiesDefeated++;
                     _state.ClearedRooms.Add(loc.Id);
+                }
+            }
+        }
+    }
+
+    public void CheckSpaceEncounter()
+    {
+        var loc = _state.CurrentLocation;
+        if (!loc.IsSpace || loc.SpaceEncounters.Count == 0) return;
+        if (_state.ClearedRooms.Contains("space_" + loc.Id)) return;
+        if (_rng.NextDouble() > loc.SpaceEncounterChance) return;
+        if (_state.Player.SpaceVehicle == null || !_state.Player.InSpaceVehicle) return;
+
+        var encounterFactory = loc.SpaceEncounters[_rng.Next(loc.SpaceEncounters.Count)];
+        var encounter = encounterFactory();
+        encounter.Ship.InitializeResolve();
+
+        _term.Blank();
+        _term.Combat($"Sensors detect incoming: {encounter.Ship.Name} piloted by {encounter.Pilot.Name}!");
+        _term.Mechanic($"Ship: {encounter.Ship}");
+        if (encounter.Ship.Weapons.Count > 0)
+            _term.Mechanic($"Weapons: {string.Join(", ", encounter.Ship.Weapons)}");
+        if (encounter.Ship.Equipment.Count > 0)
+            _term.Mechanic($"Equipment: {string.Join(", ", encounter.Ship.Equipment)}");
+
+        _term.Prompt("Engage in ship combat? [y]es / [n]o (attempt to evade)");
+        var choice = _term.ReadInput().Trim().ToLower();
+
+        if (choice != "n")
+        {
+            var combat = new SpaceCombatEngine(
+                _state.Player, _state.Player.SpaceVehicle!,
+                encounter.Pilot, encounter.Ship, _term);
+            bool survived = combat.RunCombat();
+            _state.CreditsBalance += combat.SalvageCredits;
+            if (encounter.Ship.IsDestroyed)
+            {
+                _state.EnemiesDefeated++;
+                _state.ClearedRooms.Add("space_" + loc.Id);
+            }
+            // If player lost their ship, they need to get back to a station
+            if (_state.Player.SpaceVehicle == null)
+            {
+                _term.Narrative("Your escape pod drifts toward the nearest station...");
+                _state.CurrentLocationId = "docking_bay";
+                _state.Player.InVehicle = false;
+                _state.Player.InSpaceVehicle = false;
+                Look();
+            }
+        }
+        else
+        {
+            // Evasion: Pilot + Maneuverability vs enemy Sensors
+            var playerShip = _state.Player.SpaceVehicle!;
+            var evadeCode = _state.Player.GetBestFor(SkillType.Pilot) + playerShip.Maneuverability;
+            var detectCode = encounter.Pilot.GetBestFor(SkillType.Sensors) + encounter.Ship.GetSkillBonus(SkillType.Sensors);
+            var evadeRoll = DiceRoller.Roll(evadeCode);
+            var detectRoll = DiceRoller.Roll(detectCode);
+            _term.DiceRoll($"Evasion (Pilot + Maneuver): {evadeRoll} vs Sensors: {detectRoll}");
+
+            if (evadeRoll.Total >= detectRoll.Total)
+            {
+                _term.Narrative("You slip into the sensor shadow and evade detection!");
+            }
+            else
+            {
+                _term.Narrative("They've locked on — no escape! Engaging!");
+                var combat = new SpaceCombatEngine(
+                    _state.Player, playerShip,
+                    encounter.Pilot, encounter.Ship, _term);
+                bool survived = combat.RunCombat();
+                _state.CreditsBalance += combat.SalvageCredits;
+                if (encounter.Ship.IsDestroyed)
+                {
+                    _state.EnemiesDefeated++;
+                    _state.ClearedRooms.Add("space_" + loc.Id);
+                }
+                if (_state.Player.SpaceVehicle == null)
+                {
+                    _term.Narrative("Your escape pod drifts toward the nearest station...");
+                    _state.CurrentLocationId = "docking_bay";
+                    _state.Player.InVehicle = false;
+                    _state.Player.InSpaceVehicle = false;
+                    Look();
                 }
             }
         }
@@ -378,36 +480,31 @@ public class CommandParser
         _term.SubHeader("SHOP — Equipment");
         _term.Info($"  Your credits: {_state.CreditsBalance}");
 
-        var items = new (Item item, int price)[]
+        var items = new Item[]
         {
-            (ItemData.BlasterPistol, 50),
-            (ItemData.HeavyBlaster, 120),
-            (ItemData.BlasterRifle, 200),
-            (ItemData.Vibroblade, 80),
-            (ItemData.ForcePike, 180),
-            (ItemData.Medpack, 30),
-            (ItemData.DataPad, 40),
-            (ItemData.Macrobinoculars, 60),
+            ItemData.BlasterPistol, ItemData.HeavyBlaster, ItemData.BlasterRifle,
+            ItemData.Vibroblade, ItemData.ForcePike,
+            ItemData.Medpack, ItemData.DataPad, ItemData.Macrobinoculars,
         };
 
         for (int i = 0; i < items.Length; i++)
-            _term.Info($"  [{i + 1}] {items[i].item.Name,-25} {items[i].price} credits — {items[i].item.Description}");
+            _term.Info($"  [{i + 1}] {items[i].Name,-25} {items[i].Price} credits — {items[i].Description}");
         _term.Info("  [0] Leave shop");
 
         _term.Prompt("Buy which item?");
         int choice = _term.ReadChoice(0, items.Length);
         if (choice == 0) { _term.Info("You leave the shop."); return; }
 
-        var (selectedItem, cost) = items[choice - 1];
-        if (_state.CreditsBalance < cost)
+        var selectedItem = items[choice - 1];
+        if (_state.CreditsBalance < selectedItem.Price)
         {
             _term.Error("Not enough credits!");
             return;
         }
 
-        _state.CreditsBalance -= cost;
+        _state.CreditsBalance -= selectedItem.Price;
         _state.Player.Inventory.Add(selectedItem);
-        _term.Info($"Purchased {selectedItem.Name} for {cost} credits. Remaining: {_state.CreditsBalance}");
+        _term.Info($"Purchased {selectedItem.Name} for {selectedItem.Price} credits. Remaining: {_state.CreditsBalance}");
     }
 
     private void VehicleShop()
@@ -417,24 +514,23 @@ public class CommandParser
         _term.SubHeader("VEHICLE DEALER");
         _term.Info($"  Your credits: {_state.CreditsBalance}");
 
-        var vehicles = new (Vehicle v, int price)[]
+        var vehicles = new Vehicle[]
         {
-            (VehicleData.Speeder, 200),
-            (VehicleData.CombatSpeeder, 500),
-            (VehicleData.ArmoredTransport, 800),
-            (VehicleData.Starfighter, 1000),
-            (VehicleData.LightFreighter, 1500),
+            VehicleData.Speeder, VehicleData.CombatSpeeder, VehicleData.ArmoredTransport,
+            VehicleData.Starfighter, VehicleData.LightFreighter,
         };
 
         for (int i = 0; i < vehicles.Length; i++)
         {
-            var v = vehicles[i].v;
+            var v = vehicles[i];
             var tag = v.IsSpace ? "[SPACE]" : "[LAND]";
-            _term.Info($"  [{i + 1}] {tag} {v.Name,-30} {vehicles[i].price} credits");
+            _term.Info($"  [{i + 1}] {tag} {v.Name,-30} {v.Price} credits");
             _term.Info($"       {v.Description}");
             _term.Mechanic($"       Maneuver: {v.Maneuverability} | Resolve: {v.Resolve} | Shields: {v.Shield}");
             if (v.Weapons.Count > 0)
                 _term.Mechanic($"       Weapons: {string.Join(", ", v.Weapons)}");
+            if (v.Equipment.Count > 0)
+                _term.Mechanic($"       Equipment: {string.Join(", ", v.Equipment)}");
         }
         _term.Info("  [0] Leave");
 
@@ -442,8 +538,8 @@ public class CommandParser
         int choice = _term.ReadChoice(0, vehicles.Length);
         if (choice == 0) return;
 
-        var (selected, cost) = vehicles[choice - 1];
-        if (_state.CreditsBalance < cost) { _term.Error("Not enough credits!"); return; }
+        var selected = vehicles[choice - 1];
+        if (_state.CreditsBalance < selected.Price) { _term.Error("Not enough credits!"); return; }
 
         if (selected.IsSpace)
         {
@@ -467,8 +563,8 @@ public class CommandParser
             _state.Player.LandVehicle.InitializeResolve();
         }
 
-        _state.CreditsBalance -= cost;
-        _term.Info($"Purchased {selected.Name} for {cost} credits!");
+        _state.CreditsBalance -= selected.Price;
+        _term.Info($"Purchased {selected.Name} for {selected.Price} credits!");
     }
 
     private void ArmorShop()
@@ -504,8 +600,183 @@ public class CommandParser
         Weapons = v.Weapons.Select(w => new VehicleWeapon
         {
             Name = w.Name, Damage = w.Damage, AttackSkill = w.AttackSkill
+        }).ToList(),
+        Equipment = v.Equipment.Select(e => new VehicleEquipment
+        {
+            Name = e.Name, BonusSkill = e.BonusSkill, Bonus = e.Bonus
         }).ToList()
     };
+
+    /// <summary>
+    /// Rolls Persuade and returns the sell price as a percentage of base value.
+    /// 5-9 = 50%, 10-14 = 70%, 15-19 = 95%, 20+ = 110%. Below 5 = no sale.
+    /// </summary>
+    private int? RollSellPrice(int basePrice)
+    {
+        var persuadeCode = _state.Player.GetBestFor(SkillType.Persuade);
+        var roll = DiceRoller.Roll(persuadeCode);
+        _term.DiceRoll($"Persuade {persuadeCode}: rolled [{string.Join(", ", roll.Rolls)}] = {roll.Total}");
+
+        double percentage;
+        if (roll.Total >= 20)
+        {
+            percentage = 1.10;
+            _term.Narrative("The dealer is impressed — you drive a hard bargain and get top credit!");
+        }
+        else if (roll.Total >= 15)
+        {
+            percentage = 0.95;
+            _term.Narrative("You negotiate skillfully. The dealer agrees to a very fair price.");
+        }
+        else if (roll.Total >= 10)
+        {
+            percentage = 0.70;
+            _term.Narrative("The dealer makes a reasonable offer. Not bad.");
+        }
+        else if (roll.Total >= 5)
+        {
+            percentage = 0.50;
+            _term.Narrative("The dealer lowballs you, but it's credits in your pocket.");
+        }
+        else
+        {
+            _term.Error("The dealer waves you off. 'This junk isn't worth my time.'");
+            return null;
+        }
+
+        return (int)Math.Round(basePrice * percentage);
+    }
+
+    private void SellShop()
+    {
+        if (!_state.CurrentLocation.HasShop) { _term.Error("There's no shop here."); return; }
+
+        var inventory = _state.Player.Inventory;
+        if (inventory.Count == 0)
+        {
+            _term.Error("You have nothing to sell.");
+            return;
+        }
+
+        _term.SubHeader("SELL — Equipment");
+        _term.Info($"  Your credits: {_state.CreditsBalance}");
+        _term.Blank();
+
+        // List sellable items (items with a known price > 0)
+        var sellable = new List<(int inventoryIndex, Item item)>();
+        for (int i = 0; i < inventory.Count; i++)
+        {
+            if (inventory[i].Price > 0)
+                sellable.Add((i, inventory[i]));
+        }
+
+        if (sellable.Count == 0)
+        {
+            _term.Error("None of your items have resale value.");
+            return;
+        }
+
+        for (int i = 0; i < sellable.Count; i++)
+        {
+            var item = sellable[i].item;
+            var equipped = item == _state.Player.EquippedWeapon ? " [EQUIPPED]" : "";
+            _term.Info($"  [{i + 1}] {item.Name,-25} (base value: {item.Price} credits){equipped}");
+        }
+        _term.Info("  [0] Cancel");
+
+        _term.Prompt("Sell which item?");
+        int choice = _term.ReadChoice(0, sellable.Count);
+        if (choice == 0) { _term.Info("You leave without selling."); return; }
+
+        var (invIdx, selectedItem) = sellable[choice - 1];
+
+        // Warn if selling equipped weapon
+        if (selectedItem == _state.Player.EquippedWeapon)
+        {
+            _term.Prompt($"Sell your equipped weapon {selectedItem.Name}? [y/n]");
+            if (_term.ReadInput().Trim().ToLower() != "y") return;
+            _state.Player.EquippedWeapon = null;
+        }
+
+        _term.Narrative("You present the goods to the dealer and haggle over the price...");
+        var sellPrice = RollSellPrice(selectedItem.Price);
+        if (sellPrice == null) return; // failed the roll
+
+        _state.Player.Inventory.RemoveAt(invIdx);
+        _state.CreditsBalance += sellPrice.Value;
+        _term.Info($"  Sold {selectedItem.Name} for {sellPrice.Value} credits. Balance: {_state.CreditsBalance}");
+    }
+
+    private void SellVehicle()
+    {
+        if (!_state.CurrentLocation.HasVehicleShop) { _term.Error("No vehicle dealer here."); return; }
+
+        var options = new List<(string label, Vehicle vehicle, Action remove)>();
+
+        if (_state.Player.LandVehicle != null)
+        {
+            var v = _state.Player.LandVehicle;
+            options.Add(($"[LAND]  {v.Name} (base value: {v.Price} credits)", v, () =>
+            {
+                if (_state.Player.InVehicle && !_state.Player.InSpaceVehicle)
+                {
+                    _state.Player.InVehicle = false;
+                }
+                _state.Player.LandVehicle = null;
+            }));
+        }
+
+        if (_state.Player.SpaceVehicle != null)
+        {
+            var v = _state.Player.SpaceVehicle;
+            options.Add(($"[SPACE] {v.Name} (base value: {v.Price} credits)", v, () =>
+            {
+                if (_state.Player.InVehicle && _state.Player.InSpaceVehicle)
+                {
+                    _state.Player.InVehicle = false;
+                    _state.Player.InSpaceVehicle = false;
+                }
+                _state.Player.SpaceVehicle = null;
+            }));
+        }
+
+        if (options.Count == 0)
+        {
+            _term.Error("You have no vehicles to sell.");
+            return;
+        }
+
+        _term.SubHeader("SELL — Vehicles");
+        _term.Info($"  Your credits: {_state.CreditsBalance}");
+        _term.Blank();
+
+        for (int i = 0; i < options.Count; i++)
+            _term.Info($"  [{i + 1}] {options[i].label}");
+        _term.Info("  [0] Cancel");
+
+        _term.Prompt("Sell which vehicle?");
+        int choice = _term.ReadChoice(0, options.Count);
+        if (choice == 0) { _term.Info("You leave without selling."); return; }
+
+        var selected = options[choice - 1];
+
+        if (selected.vehicle.Price <= 0)
+        {
+            _term.Error("This vehicle has no resale value.");
+            return;
+        }
+
+        _term.Prompt($"Sell your {selected.vehicle.Name}? [y/n]");
+        if (_term.ReadInput().Trim().ToLower() != "y") return;
+
+        _term.Narrative("You walk the dealer around the vehicle, pointing out its features...");
+        var sellPrice = RollSellPrice(selected.vehicle.Price);
+        if (sellPrice == null) return;
+
+        selected.remove();
+        _state.CreditsBalance += sellPrice.Value;
+        _term.Info($"  Sold {selected.vehicle.Name} for {sellPrice.Value} credits. Balance: {_state.CreditsBalance}");
+    }
 
     private void Talk()
     {
@@ -523,8 +794,18 @@ public class CommandParser
         foreach (var (speaker, line) in dialogues)
             _term.Dialogue(speaker, line);
 
-        // Chance of a quest reward
-        if (_rng.NextDouble() < 0.3)
+        // Chance of a talk-based skill check quest
+        var availableChecks = SkillCheckData.TalkChecks
+            .Where(c => !_state.CompletedChecks.Contains(c.Id))
+            .ToList();
+        if (availableChecks.Count > 0 && _rng.NextDouble() < 0.5)
+        {
+            var check = availableChecks[_rng.Next(availableChecks.Count)];
+            _term.Blank();
+            RunSkillCheck(check);
+        }
+        // Fallback: chance of a plain credit reward
+        else if (_rng.NextDouble() < 0.3)
         {
             int reward = _rng.Next(20, 80);
             _state.CreditsBalance += reward;
@@ -573,6 +854,24 @@ public class CommandParser
 
     private void SearchArea()
     {
+        var locId = _state.CurrentLocationId;
+
+        // Check for location-specific skill check events first
+        if (SkillCheckData.LocationChecks.TryGetValue(locId, out var checks))
+        {
+            var available = checks.Where(c => !_state.CompletedChecks.Contains(c.Id) || c.Repeatable).ToList();
+            if (available.Count > 0)
+            {
+                var check = available[_rng.Next(available.Count)];
+                RunSkillCheck(check);
+                _state.TurnCount++;
+                if (_rng.NextDouble() < 0.15)
+                    CheckEncounter();
+                return;
+            }
+        }
+
+        // Standard search
         var searchRoll = DiceRoller.Roll(_state.Player.GetBestFor(SkillType.Search));
         _term.DiceRoll($"Search check: {searchRoll}");
 
@@ -721,6 +1020,161 @@ public class CommandParser
             _term.Info($"  {s}.SAV");
     }
 
+    private void RunSkillCheck(SkillCheckEvent check)
+    {
+        _term.Narrative(check.Description);
+        _term.Mechanic($"Skill Check: {check.Skill} — {SkillCheckData.DifficultyLabel(check.Difficulty)} (Target: {check.TargetNumber})");
+        _term.Prompt($"Attempt the {check.Skill} check? [y/n]");
+        if (_term.ReadInput().Trim().ToLower() != "y")
+        {
+            _term.Narrative("You decide to leave it alone.");
+            return;
+        }
+
+        var skillCode = _state.Player.GetBestFor(check.Skill);
+        var roll = DiceRoller.Roll(skillCode);
+        _term.DiceRoll($"{check.Skill} check ({skillCode}): {roll}");
+        _term.Mechanic($"vs Target Number: {check.TargetNumber}");
+
+        if (roll.Total >= check.TargetNumber)
+        {
+            _term.Blank();
+            _term.Narrative(check.SuccessText);
+            if (check.CreditReward > 0)
+            {
+                _state.CreditsBalance += check.CreditReward;
+                _term.Info($"  +{check.CreditReward} credits");
+            }
+            if (check.UpgradePointReward > 0)
+            {
+                _state.UpgradePoints += check.UpgradePointReward;
+                _term.Info($"  +{check.UpgradePointReward} Upgrade Point{(check.UpgradePointReward > 1 ? "s" : "")} (Total: {_state.UpgradePoints})");
+            }
+            if (!check.Repeatable)
+                _state.CompletedChecks.Add(check.Id);
+        }
+        else
+        {
+            _term.Blank();
+            _term.Narrative(check.FailText);
+        }
+    }
+
+    /// <summary>
+    /// Skill upgrade cost: 3 × the new pip position (1st pip = 3, 2nd pip = 6, 3rd pip/new die = 9).
+    /// Pip position cycles 1→2→3 with each die level.
+    /// </summary>
+    private static int SkillUpgradeCost(DiceCode current)
+    {
+        // After upgrade the new pip count is (current.Pips + 1) % 3, rolling over to next die.
+        // Pip position in the cycle: pips 0→1 costs 3, 1→2 costs 6, 2→0(next die) costs 9.
+        int pipPos = current.Pips + 1; // 1, 2, or 3 (3 means rolling to next die)
+        return 3 * pipPos;
+    }
+
+    /// <summary>
+    /// Attribute upgrade cost: 6 × the die value of the resulting dice code.
+    /// All upgrades within the same die tier cost the same (e.g., all upgrades to 2D/2D+1/2D+2 = 12).
+    /// </summary>
+    private static int AttributeUpgradeCost(DiceCode current)
+    {
+        // The new dice code after +1 pip:
+        var next = current + 1;
+        return 6 * next.Dice;
+    }
+
+    private void Upgrade(string arg)
+    {
+        if (_state.UpgradePoints <= 0)
+        {
+            _term.Error("You have no Upgrade Points. Complete skill checks and quests to earn them.");
+            return;
+        }
+
+        _term.Header("UPGRADE");
+        _term.Info($"  Available Upgrade Points: {_state.UpgradePoints}");
+        _term.Blank();
+        _term.Info($"  Skill cost:     3 / 6 / 9 points per pip (cycles each die)");
+        _term.Info($"  Attribute cost:  6 × new die value per pip (e.g. →2D costs 12)");
+        _term.Blank();
+
+        // Build numbered list of upgradeable options
+        var options = new List<(string label, int cost, Action apply)>();
+
+        // Attributes
+        _term.SubHeader("Attributes");
+        foreach (var attr in Enum.GetValues<AttributeType>())
+        {
+            var current = _state.Player.GetAttribute(attr);
+            var next = current + 1;
+            int cost = AttributeUpgradeCost(current);
+            int idx = options.Count + 1;
+            bool affordable = _state.UpgradePoints >= cost;
+            var color = affordable ? "" : " (not enough points)";
+            _term.Info($"  [{idx}] {attr,-12} {current} → {next}  [Cost: {cost}]{color}");
+            var a = attr; // capture
+            options.Add(($"{attr}", cost, () =>
+            {
+                _state.Player.Attributes[a] = next;
+                _term.Info($"  {a} upgraded to {next}!");
+            }));
+        }
+
+        // Skills
+        _term.SubHeader("Skills");
+        foreach (var attr in Enum.GetValues<AttributeType>())
+        {
+            foreach (var skill in SkillMap.GetSkillsFor(attr))
+            {
+                var currentBonus = _state.Player.SkillBonuses.TryGetValue(skill, out var b) ? b : new DiceCode(0);
+                var currentTotal = _state.Player.GetSkill(skill);
+                var nextBonus = currentBonus + 1;
+                var nextTotal = _state.Player.GetAttribute(attr) + nextBonus;
+                int cost = SkillUpgradeCost(currentBonus);
+                int idx = options.Count + 1;
+                bool affordable = _state.UpgradePoints >= cost;
+                var color = affordable ? "" : " (not enough points)";
+                _term.Info($"  [{idx}] {skill,-14} {currentTotal} → {nextTotal}  (bonus: {currentBonus} → {nextBonus})  [Cost: {cost}]{color}");
+                var s = skill; // capture
+                var nb = nextBonus;
+                var c = cost;
+                options.Add(($"{skill}", c, () =>
+                {
+                    _state.Player.SkillBonuses[s] = nb;
+                    _term.Info($"  {s} bonus upgraded to {nb}!");
+                }));
+            }
+        }
+
+        _term.Info($"  [0] Cancel");
+        _term.Blank();
+        _term.Prompt("Upgrade which? (enter number):");
+        int choice = _term.ReadChoice(0, options.Count);
+        if (choice == 0) { _term.Info("Upgrade cancelled."); return; }
+
+        var selected = options[choice - 1];
+        if (_state.UpgradePoints < selected.cost)
+        {
+            _term.Error($"Not enough Upgrade Points. {selected.label} requires {selected.cost} but you have {_state.UpgradePoints}.");
+            return;
+        }
+
+        // Store old resolve before applying
+        int oldResolve = _state.Player.Resolve;
+
+        selected.apply();
+        _state.UpgradePoints -= selected.cost;
+        _term.Info($"  Spent {selected.cost} Upgrade Points. Remaining: {_state.UpgradePoints}");
+
+        // Recalculate resolve since Strength/Stamina may have changed
+        if (_state.Player.Resolve != oldResolve)
+        {
+            int diff = _state.Player.Resolve - oldResolve;
+            _state.Player.CurrentResolve += diff;
+            _term.Mechanic($"Max Resolve changed to {_state.Player.Resolve} (Current: {_state.Player.CurrentResolve})");
+        }
+    }
+
     private void ShowHelp()
     {
         _term.Header("COMMANDS");
@@ -742,6 +1196,7 @@ public class CommandParser
         _term.Info("    talk                  — Talk to friendly NPCs");
         _term.Info("    use <item>            — Use an item (e.g., 'use medpack')");
         _term.Info("    rest                  — Rest to recover Resolve");
+        _term.Info("    upgrade / levelup     — Spend Upgrade Points on attributes/skills");
         _term.Info("    roll <skill/attr>     — Make a skill or attribute roll");
         _term.Info("");
         _term.Info("  Vehicle:");
@@ -752,6 +1207,8 @@ public class CommandParser
         _term.Info("    shop / buy            — Browse the item shop");
         _term.Info("    ashop                 — Browse the armor shop");
         _term.Info("    vshop                 — Browse the vehicle dealer");
+        _term.Info("    sell                  — Sell equipment from inventory");
+        _term.Info("    sellv                 — Sell a vehicle");
         _term.Info("");
         _term.Info("  Save/Load:");
         _term.Info("    save [name]           — Save game (default: character name)");

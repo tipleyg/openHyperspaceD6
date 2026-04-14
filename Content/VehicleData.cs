@@ -15,7 +15,8 @@ public static class VehicleData
         Weapons = new()
         {
             new() { Name = "Dual Laser Cannon", Damage = new DiceCode(3), AttackSkill = SkillType.Gunnery }
-        }
+        },
+        Price = 1500
     };
 
     public static Vehicle Starfighter => new()
@@ -30,7 +31,12 @@ public static class VehicleData
         {
             new() { Name = "Laser Cannons", Damage = new DiceCode(3, 1), AttackSkill = SkillType.Gunnery },
             new() { Name = "Proton Torpedoes", Damage = new DiceCode(5), AttackSkill = SkillType.Gunnery }
-        }
+        },
+        Equipment = new()
+        {
+            new() { Name = "Basic Targeting Computer", BonusSkill = SkillType.Gunnery, Bonus = new DiceCode(0, 1) }
+        },
+        Price = 1000
     };
 
     public static Vehicle PatrolCruiser => new()
@@ -45,7 +51,13 @@ public static class VehicleData
         {
             new() { Name = "Turbolaser Battery", Damage = new DiceCode(4), AttackSkill = SkillType.Gunnery },
             new() { Name = "Ion Cannon", Damage = new DiceCode(3), AttackSkill = SkillType.Gunnery }
-        }
+        },
+        Equipment = new()
+        {
+            new() { Name = "Military Targeting Computer", BonusSkill = SkillType.Gunnery, Bonus = new DiceCode(0, 2) },
+            new() { Name = "Advanced Sensors", BonusSkill = SkillType.Sensors, Bonus = new DiceCode(0, 1) }
+        },
+        Price = 3000
     };
 
     public static Vehicle Speeder => new()
@@ -56,7 +68,8 @@ public static class VehicleData
         Maneuverability = new DiceCode(1, 2),
         Resolve = 14,
         Shield = ShieldData.Unshielded,
-        Weapons = new()
+        Weapons = new(),
+        Price = 200
     };
 
     public static Vehicle ArmoredTransport => new()
@@ -70,7 +83,8 @@ public static class VehicleData
         Weapons = new()
         {
             new() { Name = "Mounted Repeating Blaster", Damage = new DiceCode(3, 2), AttackSkill = SkillType.Gunnery }
-        }
+        },
+        Price = 800
     };
 
     public static Vehicle CombatSpeeder => new()
@@ -84,7 +98,8 @@ public static class VehicleData
         Weapons = new()
         {
             new() { Name = "Light Blaster Cannon", Damage = new DiceCode(2, 2), AttackSkill = SkillType.Gunnery }
-        }
+        },
+        Price = 500
     };
 
     public static List<Vehicle> SpaceVehicles => new() { LightFreighter, Starfighter, PatrolCruiser };

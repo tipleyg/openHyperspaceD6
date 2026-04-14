@@ -8,6 +8,7 @@ public class Item
     public DiceCode Damage { get; set; }
     public SkillType? AttackSkill { get; set; }
     public int Range { get; set; } // 0 = melee
+    public int Price { get; set; }
 
     public override string ToString()
         => IsWeapon ? $"{Name} (Dmg: {Damage}, Skill: {AttackSkill})" : Name;

@@ -15,6 +15,8 @@ public class Location
     public List<Func<Character>>? FriendlyNPCs { get; set; }
     public bool HasShop { get; set; }
     public bool HasVehicleShop { get; set; }
+    public List<Func<SpaceEncounter>> SpaceEncounters { get; set; } = new();
+    public double SpaceEncounterChance { get; set; } = 0.0;
     
     public string PlanetName { get; set; } = "";
     
@@ -56,7 +58,7 @@ public static class LocationData
         world["market"] = new Location
         {
             Id = "market",
-            Name = "Nexus Station Market District",
+            Name = "Mos Espa Market District",
             Description = "A bustling open-air bazaar crammed between durasteel bulkheads. Vendors hawk everything from reprocessed ration packs to suspiciously pristine military hardware. Holographic signs flicker in a dozen languages.",
             Exits = new() { ["south"] = "cantina", ["east"] = "hangar", ["north"] = "upper_district" },
             PossibleEncounters = new() { NPCData.PirateThugs },
@@ -143,7 +145,7 @@ public static class LocationData
         {
             Id = "reactor",
             Name = "Reactor Core Access",
-            Description = "The massive reactor core of Nexus Station hums with terrifying power behind reinforced transparisteel barriers. Warning signs in every language plaster the walls. The air crackles with residual energy.",
+            Description = "The massive reactor core of Mos Espa hums with terrifying power behind reinforced transparisteel barriers. Warning signs in every language plaster the walls. The air crackles with residual energy.",
             Exits = new() { ["up"] = "tunnels" },
             PossibleEncounters = new() { NPCData.DarkAdept, NPCData.Stormtrooper },
             EncounterChance = 0.6,
@@ -185,7 +187,7 @@ public static class LocationData
         {
             Id = "upper_district",
             Name = "Upper District",
-            Description = "The polished upper level of Nexus Station, where the wealthy and powerful conduct their affairs. Clean corridors, functioning lights, and the faint scent of something almost floral. The contrast with below is stark.",
+            Description = "The polished upper level of Mos Espa, where the wealthy and powerful conduct their affairs. Clean corridors, functioning lights, and the faint scent of something almost floral. The contrast with below is stark.",
             Exits = new() { ["south"] = "market", ["east"] = "command" },
             PossibleEncounters = new() { NPCData.ImperialOfficer },
             EncounterChance = 0.15,
@@ -207,7 +209,7 @@ public static class LocationData
         {
             Id = "command",
             Name = "Station Command Center",
-            Description = "The nerve center of Nexus Station. Massive viewscreens display system-wide sensor data, shipping routes, and Imperial patrol patterns. Officers and technicians bustle between consoles.",
+            Description = "The nerve center of the Imperial Regiment at Mos Espa. Massive viewscreens display system-wide sensor data, shipping routes, and Imperial patrol patterns. Officers and technicians bustle between consoles.",
             Exits = new() { ["west"] = "upper_district" },
             PossibleEncounters = new() { NPCData.ImperialOfficer, NPCData.Stormtrooper, NPCData.Stormtrooper },
             EncounterChance = 0.35,
@@ -226,8 +228,8 @@ public static class LocationData
         world["orbit"] = new Location
         {
             Id = "orbit",
-            Name = "Nexus Station Orbit",
-            Description = "The cold void of space stretches endlessly around you. Nexus Station hangs below, a glittering web of lights against the darkness. Ships drift in and out of traffic lanes. The nearest star paints everything in pale gold.",
+            Name = "Tatooine Orbit",
+            Description = "The cold void of space stretches endlessly around you. Tatooine, a glittering web of lights against the dark planet surface. Ships drift in and out of traffic lanes. The nearest star paints everything in pale gold.",
             IsSpace = true,
             Exits = new() { ["dock"] = "docking_bay", ["land"] = "hangar", ["jump"] = "deep_space" },
             PossibleEncounters = new() { NPCData.BountyHunter },
@@ -238,6 +240,8 @@ public static class LocationData
                 "A burst of static on the comm—someone's distress signal, quickly silenced.",
                 "The station's defense turrets track a passing freighter, then stand down.",
             },
+            SpaceEncounters = new() { SpaceEncounterData.ImperialPatrol, SpaceEncounterData.SmugglerFreighter },
+            SpaceEncounterChance = 0.25,
             PlanetName = "Tatooine System Space",
             StarSystemName = "Tatoo System",
             SectorName = "Arkanis Sector",
@@ -253,6 +257,8 @@ public static class LocationData
             Exits = new() { ["jump"] = "orbit", ["explore"] = "derelict" },
             PossibleEncounters = new() { NPCData.BountyHunter, NPCData.PirateThugs },
             EncounterChance = 0.4,
+            SpaceEncounters = new() { SpaceEncounterData.PirateInterceptor, SpaceEncounterData.BountyHunterShip, SpaceEncounterData.ImperialGunboat },
+            SpaceEncounterChance = 0.45,
             AmbientMessages = new()
             {
                 "An asteroid tumbles past your viewport, close enough to see the mineral veins.",
@@ -275,6 +281,8 @@ public static class LocationData
             Exits = new() { ["leave"] = "deep_space", ["board"] = "derelict_interior" },
             PossibleEncounters = new() { NPCData.DarkAdept },
             EncounterChance = 0.3,
+            SpaceEncounters = new() { SpaceEncounterData.PirateInterceptor, SpaceEncounterData.BountyHunterShip },
+            SpaceEncounterChance = 0.35,
             AmbientMessages = new()
             {
                 "The station rotates slowly, revealing blast marks across its midsection.",

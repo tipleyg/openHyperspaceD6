@@ -154,7 +154,7 @@ static GameState CreateNewGame(Terminal term)
 {
     var creator = new CharacterCreation(term);
     var player = creator.Create();
-    var state = new GameState { Player = player };
+    var state = new GameState { Player = player, UpgradePoints = 6 };
     state.Initialize();
     state.VisitedLocations.Add(state.CurrentLocationId);
     return state;

@@ -121,6 +121,7 @@ public class CharacterCreation
         // Show final character
         _term.Blank();
         _term.CharacterSheet(character);
+        _term.Info("Note: you will start with 6 unspent Upgrade Points to customize after creation");
         _term.Prompt("Accept this character? [y/n]");
         if (_term.ReadInput().Trim().ToLower() == "n")
             return Create(); // recursive re-create

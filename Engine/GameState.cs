@@ -14,6 +14,8 @@ public class GameState
     public HashSet<string> VisitedLocations { get; set; } = new();
     public HashSet<string> ClearedRooms { get; set; } = new();
     public int EnemiesDefeated { get; set; }
+    public int UpgradePoints { get; set; }
+    public HashSet<string> CompletedChecks { get; set; } = new();
 
     public Location CurrentLocation => World[CurrentLocationId];
 

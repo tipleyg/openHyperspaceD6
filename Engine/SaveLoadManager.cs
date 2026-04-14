@@ -53,6 +53,8 @@ public static class SaveLoadManager
         writer.WriteLine($"EnemiesDefeated={state.EnemiesDefeated}");
         writer.WriteLine($"Visited={string.Join(",", state.VisitedLocations)}");
         writer.WriteLine($"Cleared={string.Join(",", state.ClearedRooms)}");
+        writer.WriteLine($"UpgradePoints={state.UpgradePoints}");
+        writer.WriteLine($"CompletedChecks={string.Join(",", state.CompletedChecks)}");
     }
 
     public static GameState Load(string? fileName)
@@ -168,6 +170,11 @@ public static class SaveLoadManager
                             foreach (var room in val.Split(',', StringSplitOptions.RemoveEmptyEntries))
                                 state.ClearedRooms.Add(room);
                             break;
+                        case "UpgradePoints": state.UpgradePoints = int.Parse(val); break;
+                        case "CompletedChecks":
+                            foreach (var id in val.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                state.CompletedChecks.Add(id);
+                            break;
                     }
                     break;
             }
@@ -211,6 +218,12 @@ public static class SaveLoadManager
         {
             var w = v.Weapons[i];
             writer.WriteLine($"{prefix}_Weapon{i}={w.Name}|{w.Damage.Dice},{w.Damage.Pips}|{w.AttackSkill}");
+        }
+        writer.WriteLine($"{prefix}_EquipCount={v.Equipment.Count}");
+        for (int i = 0; i < v.Equipment.Count; i++)
+        {
+            var e = v.Equipment[i];
+            writer.WriteLine($"{prefix}_Equip{i}={e.Name}|{e.Bonus.Dice},{e.Bonus.Pips}|{e.BonusSkill}");
         }
     }
 
@@ -263,6 +276,19 @@ public static class SaveLoadManager
                     if (Enum.TryParse<SkillType>(parts[2], out var atkSkill))
                         weapon.AttackSkill = atkSkill;
                     vehicle.Weapons.Add(weapon);
+                }
+                else if (field.StartsWith("Equip") && field != "EquipCount")
+                {
+                    var parts = val.Split('|');
+                    var bonusParts = parts[1].Split(',');
+                    var equip = new VehicleEquipment
+                    {
+                        Name = parts[0],
+                        Bonus = new DiceCode(int.Parse(bonusParts[0]), int.Parse(bonusParts[1])),
+                    };
+                    if (Enum.TryParse<SkillType>(parts[2], out var bonusSkill))
+                        equip.BonusSkill = bonusSkill;
+                    vehicle.Equipment.Add(equip);
                 }
                 break;
         }

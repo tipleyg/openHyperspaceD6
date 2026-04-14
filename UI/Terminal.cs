@@ -73,10 +73,12 @@ public class Terminal
         WriteColored($"  Exits: {string.Join(", ", exits)}", ConsoleColor.DarkGreen);
     }
 
-    public void CharacterSheet(Models.Character c)
+    public void CharacterSheet(Models.Character c, int upgradePoints = 0)
     {
         Header($"CHARACTER: {c.Name}");
         Info($"  Species: {c.SpeciesName}  |  Role: {c.RoleName}");
+        if (upgradePoints > 0)
+            WriteColored($"  Upgrade Points: {upgradePoints}", ConsoleColor.Green);
         Divider();
 
         SubHeader("Attributes & Skills");
@@ -111,12 +113,20 @@ public class Terminal
         {
             SubHeader("Space Vehicle");
             WriteColored($"  {c.SpaceVehicle}", ConsoleColor.Yellow);
+            if (c.SpaceVehicle.Weapons.Count > 0)
+                WriteColored($"  Weapons: {string.Join(", ", c.SpaceVehicle.Weapons)}", ConsoleColor.DarkYellow);
+            if (c.SpaceVehicle.Equipment.Count > 0)
+                WriteColored($"  Equipment: {string.Join(", ", c.SpaceVehicle.Equipment)}", ConsoleColor.DarkYellow);
         }
 
         if (c.LandVehicle != null)
         {
             SubHeader("Land Vehicle");
             WriteColored($"  {c.LandVehicle}", ConsoleColor.Yellow);
+            if (c.LandVehicle.Weapons.Count > 0)
+                WriteColored($"  Weapons: {string.Join(", ", c.LandVehicle.Weapons)}", ConsoleColor.DarkYellow);
+            if (c.LandVehicle.Equipment.Count > 0)
+                WriteColored($"  Equipment: {string.Join(", ", c.LandVehicle.Equipment)}", ConsoleColor.DarkYellow);
         }
 
         Divider();
