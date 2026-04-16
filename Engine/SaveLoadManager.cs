@@ -54,6 +54,7 @@ public static class SaveLoadManager
         writer.WriteLine($"Visited={string.Join(",", state.VisitedLocations)}");
         writer.WriteLine($"Cleared={string.Join(",", state.ClearedRooms)}");
         writer.WriteLine($"UpgradePoints={state.UpgradePoints}");
+        writer.WriteLine($"ForcePoints={state.ForcePoints}");
         writer.WriteLine($"CompletedChecks={string.Join(",", state.CompletedChecks)}");
     }
 
@@ -171,6 +172,7 @@ public static class SaveLoadManager
                                 state.ClearedRooms.Add(room);
                             break;
                         case "UpgradePoints": state.UpgradePoints = int.Parse(val); break;
+                        case "ForcePoints": state.ForcePoints = int.Parse(val); break;
                         case "CompletedChecks":
                             foreach (var id in val.Split(',', StringSplitOptions.RemoveEmptyEntries))
                                 state.CompletedChecks.Add(id);

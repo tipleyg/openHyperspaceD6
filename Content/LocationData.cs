@@ -27,6 +27,9 @@ public class Location
     public string TerritoryName { get; set; } = "";
 
     public Climate Climate { get; set; } = Climate.Normal;
+
+    /// <summary>When true, the player must be aboard a vehicle (land or space) to enter.</summary>
+    public bool RequiresVehicle { get; set; } = false;
 }
 
 public static class LocationData
@@ -109,7 +112,7 @@ public static class LocationData
             Id = "alley",
             Name = "Underbelly Alley",
             Description = "A narrow, trash-strewn corridor beneath the station's main level. Flickering lights cast long shadows between dripping pipes. This is where deals go wrong and people go missing.",
-            Exits = new() { ["north"] = "cantina", ["east"] = "tunnels" },
+            Exits = new() { ["north"] = "cantina", ["east"] = "tunnels", ["southeast"] = "mos_entha" },
             PossibleEncounters = new() { NPCData.PirateThugs, NPCData.PirateThugs, NPCData.BountyHunter },
             EncounterChance = 0.45,
             AmbientMessages = new()
@@ -175,7 +178,7 @@ public static class LocationData
             Id = "hangar",
             Name = "Private Hangar Bay",
             Description = "A smaller, more exclusive hangar reserved for those with credits or connections. Ships here are sleeker, better maintained. Armed guards watch the entrances.",
-            Exits = new() { ["south"] = "docking_bay", ["west"] = "market", ["up"] = "orbit" },
+            Exits = new() { ["south"] = "docking_bay", ["west"] = "market", ["up"] = "orbit", ["east"] = "beggars_canyon" },
             PossibleEncounters = new() { NPCData.ImperialOfficer, NPCData.BountyHunter },
             EncounterChance = 0.2,
             HasVehicleShop = true,
@@ -321,6 +324,101 @@ public static class LocationData
                 "A distant metallic clang echoes through the corridors. You are not alone.",
             },
             Climate = Climate.Normal
+        };
+
+        world["mos_entha"] = new Location
+        {
+            Id = "mos_entha",
+            Name = "Mos Entha — Outer Streets",
+            Description = "The sand-blasted streets of Mos Entha stretch beneath the twin suns, choked with Hutt-faction markings carved into every wall and doorframe. Enforcers in mismatched armor lounge at corners, eyes following every newcomer. This is Jabba Desilijic Tiure's territory—every credit earned here has a cut taken before it reaches your pocket.",
+            Exits = new() { ["northwest"] = "alley", ["south"] = "hutt_compound", ["southeast"] = "mospic_high_range" },
+            PossibleEncounters = new() { NPCData.PirateThugs, NPCData.PirateThugs, NPCData.BountyHunter },
+            EncounterChance = 0.35,
+            HasShop = true,
+            AmbientMessages = new()
+            {
+                "A Hutt gang enforcer counts credits behind a barred window, one hand never far from a blaster.",
+                "Someone sprayed 'JABBA SEES ALL' across the side of a moisture vaporator. Someone else added 'AND TAKES ALL'.",
+                "A nervous-looking Rodian slips down a side passage as you approach.",
+                "The smell of spice and charred metal hangs heavy in the afternoon heat.",
+                "Two armored heavies settle a dispute with raised voices and a pointed blaster—the losing argument holsters first.",
+            },
+            FriendlyNPCs = new() { NPCData.Merchant },
+            PlanetName = "Tatooine",
+            StarSystemName = "Tatoo System",
+            SectorName = "Arkanis Sector",
+            TerritoryName = "Outer Rim Territories",
+            Climate = Climate.Hot
+        };
+
+        world["hutt_compound"] = new Location
+        {
+            Id = "hutt_compound",
+            Name = "Mos Entha — Hutt Compound",
+            Description = "Beyond the rusted gate lies the inner compound ruled by Jabba's lieutenants. The architecture is bloated and ornate, carved from the same red sandstone as the surrounding desert but gilded with Hutt excess—bronze fixtures, slave-worked mosaics, and the pervasive stench of Hutt musk and contraband spice. Jabba's banner—a bloated slug sigil—flies from every post. Only the bold or the foolish come here uninvited.",
+            Exits = new() { ["north"] = "mos_entha" },
+            PossibleEncounters = new() { NPCData.PirateThugs, NPCData.BountyHunter, NPCData.BountyHunter, NPCData.ImperialOfficer },
+            EncounterChance = 0.5,
+            AmbientMessages = new()
+            {
+                "A protocol droid translates demands from somewhere deep inside, its voice strained.",
+                "Caged creatures growl from the shadows beneath an iron-barred alcove.",
+                "A lieutenant in Hutt livery lists 'outstanding debts' from a crumpled flimsiplast scroll.",
+                "Blaster burns scar the inner walls—someone made a run for it recently. They didn't make it far.",
+                "The compound's central pit is sealed with durasteel grating. You decide not to look too closely.",
+            },
+            PlanetName = "Tatooine",
+            StarSystemName = "Tatoo System",
+            SectorName = "Arkanis Sector",
+            TerritoryName = "Outer Rim Territories",
+            Climate = Climate.Hot
+        };
+
+        world["beggars_canyon"] = new Location
+        {
+            Id = "beggars_canyon",
+            Name = "Beggar's Canyon Entrance",
+            Description = "The legendary canyon cuts a jagged scar through the Tatooine badlands east of Mos Espa. Towering sandstone walls streaked rust and amber, riddled with overhangs and narrow chicanes that racers call the 'Stone Needle Run.' The air currents here are treacherous; updrafts appear without warning and the canyon floor is littered with the wreckage of vehicles whose pilots misjudged a turn.",
+            Exits = new() { ["west"] = "hangar" },
+            PossibleEncounters = new() { NPCData.TuskenRaider, NPCData.TuskenRaider, NPCData.CreatureSmall, NPCData.CreatureLarge },
+            EncounterChance = 0.4,
+            RequiresVehicle = true,
+            AmbientMessages = new()
+            {
+                "A gust of wind howls through a gap in the canyon wall, scattering your footing.",
+                "Bleached bones of something large lie wedged between two boulders at the canyon floor.",
+                "The walls close in overhead—at the narrowest point the sky is just a thin stripe of blue.",
+                "Distant Bantha bellows echo off the stone, far too close for comfort.",
+                "A rusted T-16 skyhopper frame is half-buried in a sandbank, its markings long since scoured away.",
+            },
+            PlanetName = "Tatooine",
+            StarSystemName = "Tatoo System",
+            SectorName = "Arkanis Sector",
+            TerritoryName = "Outer Rim Territories",
+            Climate = Climate.Hot
+        };
+
+        world["mospic_high_range"] = new Location
+        {
+            Id = "mospic_high_range",
+            Name = "Mospic High Range",
+            Description = "The Mospic High Range looms above the desert floor in broken tiers of wind-carved red-rock plateaus and deep shadowed canyons. Ancient Tusken burial cairns mark every ridge line; the Raiders consider these highlands sacred ground and defend them without mercy. There are no roads here—only goat trails worn by Banthas and the patient footsteps of Sand People who have called this wilderness home for ten thousand years.",
+            Exits = new() { ["northwest"] = "mos_entha" },
+            PossibleEncounters = new() { NPCData.TuskenRaider, NPCData.TuskenRaider, NPCData.TuskenRaider, NPCData.CreatureLarge },
+            EncounterChance = 0.55,
+            AmbientMessages = new()
+            {
+                "A Bantha lowing call rolls down from the plateau above—answered, moments later, from below.",
+                "You spot movement on a high ridge: a robed silhouette watching you, then gone.",
+                "The wind here carries a rhythmic tapping—a Gaderffii stick on stone, unhurried and deliberate.",
+                "Sun-bleached skulls have been placed along the trail at intervals. A warning, or a boundary marker.",
+                "The canyon walls are covered in ancient Tusken pictographs—hunting scenes, star maps, something that might be a warning.",
+            },
+            PlanetName = "Tatooine",
+            StarSystemName = "Tatoo System",
+            SectorName = "Arkanis Sector",
+            TerritoryName = "Outer Rim Territories",
+            Climate = Climate.Hot
         };
 
         // Initialize NPC resolve for encounters

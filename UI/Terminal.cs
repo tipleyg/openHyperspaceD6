@@ -73,12 +73,14 @@ public class Terminal
         WriteColored($"  Exits: {string.Join(", ", exits)}", ConsoleColor.DarkGreen);
     }
 
-    public void CharacterSheet(Models.Character c, int upgradePoints = 0)
+    public void CharacterSheet(Models.Character c, int upgradePoints = 0, int forcePoints = 0)
     {
         Header($"CHARACTER: {c.Name}");
         Info($"  Species: {c.SpeciesName}  |  Role: {c.RoleName}");
         if (upgradePoints > 0)
             WriteColored($"  Upgrade Points: {upgradePoints}", ConsoleColor.Green);
+        if (forcePoints > 0)
+            WriteColored($"  Force Points:   {forcePoints}", ConsoleColor.Cyan);
         Divider();
 
         SubHeader("Attributes & Skills");

@@ -180,7 +180,7 @@ public static class SkillCheckData
         Description = "A rebel sympathizer whispers: 'We've intercepted an Imperial transmission but can't decode the sector references. Know your way around the galaxy?'",
         SuccessText = "You cross-reference the coordinates from memory. 'That's the Kessel Run waypoint — they're moving prisoners.' The sympathizer nods gravely and pays you.",
         FailText = "The sector codes don't ring any bells. 'Sorry, can't help with this one.'",
-        Skill = SkillType.Galaxy, Difficulty = CheckDifficulty.Difficult,
+        Skill = SkillType.Galaxy, Difficulty = CheckDifficulty.Moderate,
         TargetNumber = 15, CreditReward = 75, UpgradePointReward = 2,
     };
 
@@ -203,6 +203,26 @@ public static class SkillCheckData
         Skill = SkillType.Control, Difficulty = CheckDifficulty.Moderate,
         TargetNumber = 14, CreditReward = 20, UpgradePointReward = 2,
     };
+    
+    public static SkillCheckEvent BeggarsCanyonDeadManTurn => new()
+    {
+        Id = "beggars_canyon_dead_man_turn",
+        Description = "A group of local farmhands notice your vehicle. They're placing bets that you can't make it through Dead Man's Turn.",
+        SuccessText = "Your calculations are flawless, decelerating and air-braking your vehicle to make it the bend.",
+        FailText = "Your vehicle scuffs against the canyon walls, scraping to a halt. No reward today, only relief.",
+        Skill = SkillType.Drive, Difficulty = CheckDifficulty.Moderate,
+        TargetNumber = 11, CreditReward = 20, UpgradePointReward = 1,
+    };
+    
+    public static SkillCheckEvent BeggarsCanyonDiabloCut => new()
+    {
+        Id = "beggars_canyon_diablo_cut",
+        Description = "An even more daring turn .",
+        SuccessText = "Your calculations are flawless, decelerating and air-braking your vehicle to make it the bend.",
+        FailText = "Your vehicle scuffs against the canyon walls, scraping to a halt. No reward today, only relief.",
+        Skill = SkillType.Drive, Difficulty = CheckDifficulty.Difficult,
+        TargetNumber = 16, CreditReward = 40, UpgradePointReward = 2,
+    };
 
     // Mapping: locationId -> checks that can appear there
     public static Dictionary<string, List<SkillCheckEvent>> LocationChecks => new()
@@ -219,6 +239,7 @@ public static class SkillCheckData
         ["docking_bay"] = new() { DockingBaySmuggle },
         ["orbit"] = new() { OrbitSensorSweep },
         ["deep_space"] = new() { DeepSpaceNavHazard },
+        ["beggars_canyon"] = new () {BeggarsCanyonDeadManTurn, BeggarsCanyonDiabloCut},
     };
 
     // Pool of talk-triggered checks (any location with friendly NPCs)
@@ -231,9 +252,9 @@ public static class SkillCheckData
     public static string DifficultyLabel(CheckDifficulty d) => d switch
     {
         CheckDifficulty.Easy => "Easy (TN 4-10)",
-        CheckDifficulty.Moderate => "Moderate (TN 10-15)",
-        CheckDifficulty.Difficult => "Difficult (TN 15-20)",
-        CheckDifficulty.Challenging => "Challenging (TN 20-30)",
+        CheckDifficulty.Moderate => "Moderate (TN 11-15)",
+        CheckDifficulty.Difficult => "Difficult (TN 16-20)",
+        CheckDifficulty.Challenging => "Challenging (TN 21-30)",
         _ => "Unknown"
     };
 }

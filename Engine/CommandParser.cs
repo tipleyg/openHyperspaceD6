@@ -44,7 +44,7 @@ public class CommandParser
             case "status":
             case "sheet":
             case "char":
-                _term.CharacterSheet(_state.Player, _state.UpgradePoints);
+                _term.CharacterSheet(_state.Player, _state.UpgradePoints, _state.ForcePoints);
                 break;
             case "inventory":
             case "inv":
@@ -199,6 +199,13 @@ public class CommandParser
         }
 
         var finalDest = _state.World[finalDestId];
+
+        // Vehicle-required gate (e.g. Beggar's Canyon)
+        if (finalDest.RequiresVehicle && !_state.Player.InVehicle)
+        {
+            _term.Error($"You need a vehicle to reach {finalDest.Name}. Board a land or space vehicle first.");
+            return;
+        }
 
         // Aquatic climate gate: need a land vehicle OR armor tagged Aquatic
         if (finalDest.Climate == Climate.Aquatic)
@@ -442,6 +449,7 @@ public class CommandParser
     {
         _term.SubHeader("Inventory");
         _term.Info($"  Credits: {_state.CreditsBalance}");
+        _term.Info($"  Force Points: {_state.ForcePoints}");
         if (_state.Player.Inventory.Count == 0)
         {
             _term.Info("  (empty)");
@@ -1092,9 +1100,34 @@ public class CommandParser
         var skillCode = _state.Player.GetBestFor(check.Skill);
         var roll = DiceRoller.Roll(skillCode);
         _term.DiceRoll($"{check.Skill} check ({skillCode}): {roll}");
+
+        int finalTotal = roll.Total;
+
+        // Wild die bonus: if the first die came up 6, offer extra die or Force Point
+        if (roll.Rolls.Count > 0 && roll.Rolls[0] == 6)
+        {
+            _term.Blank();
+            _term.Mechanic("The first die shows a 6! Choose a bonus:");
+            _term.Info("  [1] Roll an extra 1D and add it to your total");
+            _term.Info("  [2] Gain a Force Point instead");
+            int bonus = _term.ReadChoice(1, 2);
+            if (bonus == 1)
+            {
+                var extra = DiceRoller.Roll(new DiceCode(1));
+                finalTotal += extra.Total;
+                _term.DiceRoll($"Extra die: [{string.Join(", ", extra.Rolls)}] = +{extra.Total}  → New total: {finalTotal}");
+            }
+            else
+            {
+                _state.ForcePoints++;
+                _term.Mechanic($"Force Point gained! (Total: {_state.ForcePoints})");
+            }
+            _term.Blank();
+        }
+
         _term.Mechanic($"vs Target Number: {check.TargetNumber}");
 
-        if (roll.Total >= check.TargetNumber)
+        if (finalTotal >= check.TargetNumber)
         {
             _term.Blank();
             _term.Narrative(check.SuccessText);

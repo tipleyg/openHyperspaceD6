@@ -210,6 +210,34 @@ public static class NPCData
         },
     };
 
+    public static Character TuskenRaider() => new()
+    {
+        Name = "Tusken Raider",
+        IsPlayer = false,
+        Attributes = new()
+        {
+            [AttributeType.Dexterity] = new DiceCode(2, 1),
+            [AttributeType.Knowledge] = new DiceCode(1),
+            [AttributeType.Mechanical] = new DiceCode(1),
+            [AttributeType.Perception] = new DiceCode(2, 2),
+            [AttributeType.Strength] = new DiceCode(2, 1),
+            [AttributeType.Technical] = new DiceCode(1, 1),
+            [AttributeType.Force] = new DiceCode(0),
+        },
+        SkillBonuses = new()
+        {
+            // Intended totals: Blasters 4D, Melee 4D, Hide 3D+2, Survival 3D, Search 3D+1
+            [SkillType.Blasters] = new DiceCode(1, 2),   // Dex 2D+1 + 1D+2 = 4D
+            [SkillType.Melee] = new DiceCode(1, 2),      // Dex 2D+1 + 1D+2 = 4D
+            [SkillType.Hide] = new DiceCode(1),           // Per 2D+2 + 1D = 3D+2
+            [SkillType.Survival] = new DiceCode(2),      // Know 1D + 2D = 3D
+            [SkillType.Search] = new DiceCode(0, 2),     // Per 2D+2 + 0D+2 = 3D+1
+        },
+        Inventory = new() { ItemData.BlasterRifle, ItemData.Vibroblade },
+        EquippedWeapon = ItemData.BlasterRifle,
+        EquippedArmor = ArmorData.PaddedFlightSuit,
+    };
+
     public static Character CreatureLarge() => new()
     {
         Name = "Rift Stalker",
