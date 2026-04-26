@@ -8,6 +8,41 @@
 
   <Application.Resources>
     <ResourceDictionary>
+      <!-- Shared palette — mirrored in UI/Palette.cs for code-side use. -->
+      <Color x:Key="PinkCoral">#FF595E</Color>
+      <Color x:Key="OrangeTangerine">#FF924C</Color>
+      <Color x:Key="GoldPollen">#FFCA3A</Color>
+      <Color x:Key="LimeLemon">#C5CA30</Color>
+      <Color x:Key="GreenMid">#77E632</Color>
+      <Color x:Key="GreenDark">#4A9416</Color>
+      <Color x:Key="CyanMid">#50D5D6</Color>
+      <Color x:Key="CyanDark">#36949D</Color>
+      <Color x:Key="BlueMid">#1982C4</Color>
+      <Color x:Key="BlueDark">#4267AC</Color>
+      <Color x:Key="PurpleDark">#565AA0</Color>
+      <Color x:Key="VioletMid">#C252C5</Color>
+      <Color x:Key="VioletDark">#6A4C93</Color>
+      <Color x:Key="BrownBg">#22171B</Color>
+      <Color x:Key="GreenBg">#272D2B</Color>
+      <Color x:Key="BlueBg">#171D22</Color>
+
+      <SolidColorBrush x:Key="PinkCoralBrush"       Color="{StaticResource PinkCoral}"/>
+      <SolidColorBrush x:Key="OrangeTangerineBrush" Color="{StaticResource OrangeTangerine}"/>
+      <SolidColorBrush x:Key="GoldPollenBrush"      Color="{StaticResource GoldPollen}"/>
+      <SolidColorBrush x:Key="LimeLemonBrush"       Color="{StaticResource LimeLemon}"/>
+      <SolidColorBrush x:Key="GreenMidBrush"        Color="{StaticResource GreenMid}"/>
+      <SolidColorBrush x:Key="GreenDarkBrush"       Color="{StaticResource GreenDark}"/>
+      <SolidColorBrush x:Key="CyanMidBrush"         Color="{StaticResource CyanMid}"/>
+      <SolidColorBrush x:Key="CyanDarkBrush"        Color="{StaticResource CyanDark}"/>
+      <SolidColorBrush x:Key="BlueMidBrush"         Color="{StaticResource BlueMid}"/>
+      <SolidColorBrush x:Key="BlueDarkBrush"        Color="{StaticResource BlueDark}"/>
+      <SolidColorBrush x:Key="PurpleDarkBrush"      Color="{StaticResource PurpleDark}"/>
+      <SolidColorBrush x:Key="VioletMidBrush"       Color="{StaticResource VioletMid}"/>
+      <SolidColorBrush x:Key="VioletDarkBrush"      Color="{StaticResource VioletDark}"/>
+      <SolidColorBrush x:Key="BrownBgBrush"         Color="{StaticResource BrownBg}"/>
+      <SolidColorBrush x:Key="GreenBgBrush"         Color="{StaticResource GreenBg}"/>
+      <SolidColorBrush x:Key="BlueBgBrush"          Color="{StaticResource BlueBg}"/>
+
       <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Dark">
           <SolidColorBrush x:Key="ButtonBackground" Color="#272D2B"/>

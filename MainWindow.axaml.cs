@@ -128,7 +128,7 @@ public partial class MainWindow : Window
                 Padding = new Avalonia.Thickness(8, 4),
                 FontFamily = MenuFont,
                 FontWeight = FontWeight.Bold,
-                Foreground = new SolidColorBrush(Color.Parse("#4EFFA4"))
+                Foreground = Palette.GreenMidBrush
             };
             button.Click += (_, _) =>
             {
@@ -338,19 +338,19 @@ public partial class MainWindow : Window
     {
         ConsoleColor.Black       => Color.Parse("#000000"),
         ConsoleColor.DarkBlue    => Color.Parse("#3B5998"),
-        ConsoleColor.DarkGreen   => Color.Parse("#3A8C3A"),
-        ConsoleColor.DarkCyan    => Color.Parse("#3AAAAA"),
+        ConsoleColor.DarkGreen   => Palette.GreenDark,
+        ConsoleColor.DarkCyan    => Palette.CyanDark,
         ConsoleColor.DarkRed     => Color.Parse("#C0392B"),
         ConsoleColor.DarkMagenta => Color.Parse("#9B59B6"),
-        ConsoleColor.DarkYellow  => Color.Parse("#D49A2A"),
+        ConsoleColor.DarkYellow  => Palette.OrangeTangerine,
         ConsoleColor.Gray        => Color.Parse("#BBBBBB"),
         ConsoleColor.DarkGray    => Color.Parse("#777777"),
         ConsoleColor.Blue        => Color.Parse("#5599FF"),
         ConsoleColor.Green       => Color.Parse("#4FFFA6"),
-        ConsoleColor.Cyan        => Color.Parse("#55E0E0"),
-        ConsoleColor.Red         => Color.Parse("#FF5555"),
+        ConsoleColor.Cyan        => Palette.CyanMid,
+        ConsoleColor.Red         => Palette.PinkCoral,
         ConsoleColor.Magenta     => Color.Parse("#FF77FF"),
-        ConsoleColor.Yellow      => Color.Parse("#F0E060"),
+        ConsoleColor.Yellow      => Palette.GoldPollen,
         ConsoleColor.White       => Color.Parse("#EEEEEE"),
         _                        => Color.Parse("#DDDDDD"),
     };
