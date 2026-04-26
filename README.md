@@ -26,7 +26,7 @@ openHyperspace is a single-player, multi-user dungeon-like (or MUD-like).
 - Theming. Many defaults
 
 ## Screenshots
-![Screenshot - Main Screen](screenshots/terminalHyperspace_IntroScreen.png) ![Screenshot - Character Sheet](screenshots/terminalHyperspace_NewCharacterSheet.png) ![Screenshot - Combat](screenshots/terminalHyperspace_Combat.png) ![Screenshot - Space Combat and Jump to Hyperspace](screenshots/terminalHyperspace_SpaceCombat_JumpToHyperspace.png)
+![Screenshot - Main Screen](screenshots/terminalHyperspace_IntroScreen.png) ![Screenshot - Character Sheet](screenshots/terminalHyperspace_NewCharacterSheet.png) ![Screenshot - Combat](screenshots/terminalHyperspace_Combat.png)
 
 ## Credits & License
 It's inspired by the West End Games d6 system and the world's most popular Space Fantasy movie series, using the Hyperspace d6 rules created by Matthew Click. This is a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International game due to these reasons, see https://creativecommons.org/licenses/by-nc-sa/4.0/ for full details. **This is strictly non-commercial in use and for educational purposes to learn a new programming language.**
