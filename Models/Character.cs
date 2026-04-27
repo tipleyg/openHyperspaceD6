@@ -21,6 +21,27 @@ public class Character
     public int CurrentResolve { get; set; }
     public bool IsDefeated => CurrentResolve <= 0;
 
+    /// Faction standing values. Each tracked faction starts at 0; mission outcomes
+    /// nudge the value up or down. The Neutral sentinel never appears here.
+    public Dictionary<Faction, int> Standings { get; set; } = new()
+    {
+        [Faction.Empire]     = 0,
+        [Faction.Rebellion]  = 0,
+        [Faction.Mandalore]  = 0,
+        [Faction.BlackSun]   = 0,
+        [Faction.HuttCartel] = 0,
+        [Faction.Jedi]       = 0,
+    };
+
+    public int GetStanding(Faction f)
+        => f != Faction.Neutral && Standings.TryGetValue(f, out var v) ? v : 0;
+
+    public void AdjustStanding(Faction f, int delta)
+    {
+        if (f == Faction.Neutral) return;
+        Standings[f] = GetStanding(f) + delta;
+    }
+
     public DiceCode GetAttribute(AttributeType attr)
         => Attributes.TryGetValue(attr, out var val) ? val : new DiceCode(1);
 

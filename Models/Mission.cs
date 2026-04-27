@@ -26,6 +26,11 @@ public class Mission
     public int CreditReward { get; set; }
     public int UpgradePointReward { get; set; }
 
+    /// On completion, +1 standing for this faction (no-op when null or Neutral).
+    public Faction? FactionBonus { get; set; }
+    /// On completion, -1 standing for this faction (no-op when null or Neutral).
+    public Faction? FactionPenalty { get; set; }
+
     public MissionStatus Status { get; set; } = MissionStatus.Active;
 
     public string DestinationName(Dictionary<string, Content.Location>? world)

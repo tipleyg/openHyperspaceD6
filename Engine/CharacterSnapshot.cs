@@ -1,3 +1,5 @@
+using TerminalHyperspace.Models;
+
 namespace TerminalHyperspace.Engine;
 
 public record InventoryEntry(
@@ -5,6 +7,8 @@ public record InventoryEntry(
     bool IsEquipped,
     bool IsMissionItem,
     string? MissionDestination);
+
+public record StandingEntry(Faction Faction, string Label, int Value);
 
 /// Pure-data snapshot of the player's high-level stats, pushed across the
 /// GuiBridge whenever state changes so the UI can refresh the overview pane.
@@ -18,5 +22,6 @@ public record CharacterSnapshot(
     int MaxResolve,
     int UpgradePoints,
     int ForcePoints,
-    IReadOnlyList<InventoryEntry> Inventory
+    IReadOnlyList<InventoryEntry> Inventory,
+    IReadOnlyList<StandingEntry> Standings
 );

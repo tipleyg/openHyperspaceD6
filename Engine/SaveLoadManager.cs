@@ -46,6 +46,10 @@ public static class SaveLoadManager
         writer.WriteLine($"InVehicle={p.InVehicle}");
         writer.WriteLine($"InSpaceVehicle={p.InSpaceVehicle}");
 
+        writer.WriteLine("[STANDINGS]");
+        foreach (var kv in p.Standings)
+            writer.WriteLine($"{kv.Key}={kv.Value}");
+
         writer.WriteLine("[GAMESTATE]");
         writer.WriteLine($"Location={state.CurrentLocationId}");
         writer.WriteLine($"TurnCount={state.TurnCount}");
@@ -154,6 +158,15 @@ public static class SaveLoadManager
                         player.InVehicle = bool.Parse(val);
                     else if (key == "InSpaceVehicle")
                         player.InSpaceVehicle = bool.Parse(val);
+                    break;
+
+                case "[STANDINGS]":
+                    if (Enum.TryParse<Faction>(key, out var faction)
+                        && int.TryParse(val, out var standing)
+                        && faction != Faction.Neutral)
+                    {
+                        player.Standings[faction] = standing;
+                    }
                     break;
 
                 case "[GAMESTATE]":

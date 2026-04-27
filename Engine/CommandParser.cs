@@ -191,6 +191,10 @@ public class CommandParser
         }
         if (m.Status == MissionStatus.Active)
             _term.Info($"      Reward:      {m.CreditReward} cr, +{m.UpgradePointReward} UP");
+        if (m.FactionBonus is { } b && b != Faction.Neutral)
+            _term.Info($"      +1 standing: {FactionData.Label(b)}");
+        if (m.FactionPenalty is { } p && p != Faction.Neutral)
+            _term.Info($"      −1 standing: {FactionData.Label(p)}");
     }
 
     /// Offers a mission to the player. Returns true if accepted.
@@ -330,6 +334,18 @@ public class CommandParser
             _state.UpgradePoints += m.UpgradePointReward;
             _term.Info($"  +{m.UpgradePointReward} Upgrade Point{(m.UpgradePointReward == 1 ? "" : "s")} (Total: {_state.UpgradePoints})");
         }
+
+        if (m.FactionBonus is { } bonus && bonus != Faction.Neutral)
+        {
+            _state.Player.AdjustStanding(bonus, +1);
+            _term.Info($"  +1 standing with {FactionData.Label(bonus)} (Total: {_state.Player.GetStanding(bonus)})");
+        }
+        if (m.FactionPenalty is { } penalty && penalty != Faction.Neutral)
+        {
+            _state.Player.AdjustStanding(penalty, -1);
+            _term.Info($"  −1 standing with {FactionData.Label(penalty)} (Total: {_state.Player.GetStanding(penalty)})");
+        }
+
         _term.SubHeader("★ Mission complete!");
     }
 

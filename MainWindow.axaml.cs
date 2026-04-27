@@ -202,6 +202,34 @@ public partial class MainWindow : Window
             OvCredits.Text = $"Credits: {snap.Credits}";
             OvTurns.Text   = $"Turns:   {snap.TurnCount}";
 
+            OvStandings.Children.Clear();
+            foreach (var st in snap.Standings)
+            {
+                Color color;
+                if      (st.Value > 0) color = Palette.GreenMid;
+                else if (st.Value < 0) color = Palette.PinkCoral;
+                else                   color = Color.Parse("#999999");
+
+                var tile = new Border
+                {
+                    Background = new SolidColorBrush(Color.Parse("#0F1A22")),
+                    BorderBrush = new SolidColorBrush(color),
+                    BorderThickness = new Avalonia.Thickness(1),
+                    CornerRadius = new Avalonia.CornerRadius(3),
+                    Padding = new Avalonia.Thickness(6, 3),
+                    Margin = new Avalonia.Thickness(0, 0, 4, 4),
+                    Child = new TextBlock
+                    {
+                        Text = $"{st.Label}: {(st.Value > 0 ? "+" : "")}{st.Value}",
+                        Foreground = new SolidColorBrush(color),
+                        FontFamily = Fonts.MonoRegular,
+                        FontSize = 12,
+                        TextWrapping = TextWrapping.NoWrap
+                    }
+                };
+                OvStandings.Children.Add(tile);
+            }
+
             OvInventory.Children.Clear();
             if (snap.Inventory.Count == 0)
             {

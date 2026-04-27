@@ -188,6 +188,9 @@ public static class GameRunner
                 IsMissionItem: i.IsMissionItem,
                 MissionDestination: i.MissionDestinationName))
             .ToList();
+        var standings = Models.FactionData.Tracked
+            .Select(f => new StandingEntry(f, Models.FactionData.Label(f), p.GetStanding(f)))
+            .ToList();
         bridge.UpdateCharacter(new CharacterSnapshot(
             Name: p.Name,
             Species: p.SpeciesName,
@@ -198,7 +201,8 @@ public static class GameRunner
             MaxResolve: p.Resolve,
             UpgradePoints: state.UpgradePoints,
             ForcePoints: state.ForcePoints,
-            Inventory: inventory));
+            Inventory: inventory,
+            Standings: standings));
     }
 
     private static GameState CreateNewGame(Terminal term)

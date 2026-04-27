@@ -16,6 +16,8 @@ public static partial class MissionData
         EscortNpcName = "Twi'lek Diplomat",
         CreditReward = 200,
         UpgradePointReward = 1,
+        FactionBonus = Faction.Rebellion,
+        FactionPenalty = Faction.Empire,
     };
 
     public static Mission EscortInformant() => new()
@@ -28,6 +30,8 @@ public static partial class MissionData
         EscortNpcName = "Rebel Informant",
         CreditReward = 150,
         UpgradePointReward = 1,
+        FactionBonus = Faction.Rebellion,
+        FactionPenalty = Faction.Empire,
     };
 
     public static Mission DeliverySpiceCargo() => new()
@@ -47,6 +51,8 @@ public static partial class MissionData
         },
         CreditReward = 250,
         UpgradePointReward = 1,
+        FactionBonus = Faction.HuttCartel,
+        FactionPenalty = Faction.Empire,
     };
 
     public static Mission DeliveryDataPad() => new()
@@ -66,6 +72,8 @@ public static partial class MissionData
         },
         CreditReward = 175,
         UpgradePointReward = 1,
+        FactionBonus = Faction.Rebellion,
+        FactionPenalty = Faction.Empire,
     };
 
     public static Mission SabotageReactor() => new()
@@ -81,6 +89,8 @@ public static partial class MissionData
         CheckFailText = "An alarm trips. Sirens echo through the reactor halls — you barely make it out.",
         CreditReward = 350,
         UpgradePointReward = 2,
+        FactionBonus = Faction.Rebellion,
+        FactionPenalty = Faction.Empire,
     };
 
     public static Mission SabotageCommand() => new()
@@ -96,6 +106,8 @@ public static partial class MissionData
         CheckFailText = "Your tools slip. Officers turn at the noise.",
         CreditReward = 400,
         UpgradePointReward = 2,
+        FactionBonus = Faction.Rebellion,
+        FactionPenalty = Faction.Empire,
     };
 
     public static Mission ReconHangar() => new()
@@ -111,6 +123,8 @@ public static partial class MissionData
         CheckFailText = "A guard catches your reflection in a viewport. You leave empty-handed.",
         CreditReward = 220,
         UpgradePointReward = 1,
+        FactionBonus = Faction.BlackSun,
+        FactionPenalty = Faction.Empire,
     };
 
     public static Mission ReconTunnels() => new()
@@ -126,6 +140,8 @@ public static partial class MissionData
         CheckFailText = "Interference scrambles your readings. The map is useless.",
         CreditReward = 180,
         UpgradePointReward = 1,
+        FactionBonus = Faction.Rebellion,
+        FactionPenalty = Faction.Neutral,
     };
 
     // ===========================================================
@@ -141,6 +157,8 @@ public static partial class MissionData
         EscortNpcName = "Frightened Fugitive",
         CreditReward = 350,
         UpgradePointReward = 2,
+        FactionBonus = Faction.Jedi,
+        FactionPenalty = Faction.Empire,
     };
 
     public static Mission DeliveryJawaParts() => new()
@@ -160,6 +178,8 @@ public static partial class MissionData
         },
         CreditReward = 280,
         UpgradePointReward = 1,
+        FactionBonus = Faction.Neutral,
+        FactionPenalty = Faction.Neutral,
     };
 
     public static Mission SabotageBestineGarrison() => new()
@@ -175,6 +195,8 @@ public static partial class MissionData
         CheckFailText = "Sparks fly from the wrong relay. Klaxons sound and you barely make it back to the gate.",
         CreditReward = 450,
         UpgradePointReward = 3,
+        FactionBonus = Faction.Rebellion,
+        FactionPenalty = Faction.Empire,
     };
 
     public static Mission ReconJundlandTuskenPaths() => new()
@@ -190,6 +212,8 @@ public static partial class MissionData
         CheckFailText = "You lose the trail in a slot canyon and emerge with sketchy notes the buyers reject.",
         CreditReward = 220,
         UpgradePointReward = 1,
+        FactionBonus = Faction.Mandalore,
+        FactionPenalty = Faction.Neutral,
     };
 
     public static Mission DeliveryHermitJournal() => new()
@@ -209,6 +233,8 @@ public static partial class MissionData
         },
         CreditReward = 320,
         UpgradePointReward = 2,
+        FactionBonus = Faction.Jedi,
+        FactionPenalty = Faction.Neutral,
     };
 
     public static List<Func<Mission>> AllOffers => new()

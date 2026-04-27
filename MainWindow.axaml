@@ -103,6 +103,11 @@
           <TextBlock Name="OvResolve" Text="" Foreground="#FF595E" FontFamily="{StaticResource MonoRegular}" FontSize="14" Margin="0,4,0,0"/>
           <TextBlock Name="OvCredits" Text="" Foreground="#FFCA3A" FontFamily="{StaticResource MonoRegular}" FontSize="14"/>
           <TextBlock Name="OvTurns"   Text="" Foreground="#888888" FontFamily="{StaticResource MonoRegular}" FontSize="14"/>
+          <TextBlock Text="Standing"
+                     FontSize="14" Foreground="#3C58F6"
+                     FontFamily="{StaticResource MonoBold}"
+                     Margin="0,8,0,4"/>
+          <WrapPanel Name="OvStandings" Orientation="Horizontal"/>
           <TextBlock Text="Inventory"
                      FontSize="14" Foreground="#3C58F6"
                      FontFamily="{StaticResource MonoBold}"

@@ -2,7 +2,7 @@
 Name=Lowbacca
 Species=Wookie
 Role=Bounty Hunter
-CurrentResolve=4
+CurrentResolve=9
 [ATTRIBUTES]
 Dexterity=3,0
 Knowledge=1,2
@@ -30,13 +30,20 @@ EquippedArmor=Padded Flight Suit
 [VEHICLES]
 InVehicle=False
 InSpaceVehicle=False
+[STANDINGS]
+Empire=0
+Rebellion=0
+Mandalore=0
+BlackSun=0
+HuttCartel=0
+Jedi=0
 [GAMESTATE]
-Location=tatooine_bestine_outskirts
-TurnCount=29
-Credits=60
+Location=tatooine_espa_alley
+TurnCount=61
+Credits=45
 EnemiesDefeated=0
-Visited=tatooine_espa_cantina,tatooine_espa_market,tatooine_espa_upper_district,tatooine_espa_command,tatooine_espa_hangar,tatooine_espa_docking_bay,tatooine_espa_alley,tatooine_espa_tunnels,tatooine_mos_entha,tatooine_mospic_high_range,tatooine_pika_oasis,tatooine_bestine_outskirts
+Visited=tatooine_espa_cantina,tatooine_espa_market,tatooine_espa_upper_district,tatooine_espa_command,tatooine_espa_hangar,tatooine_espa_docking_bay,tatooine_espa_alley,tatooine_espa_tunnels,tatooine_mos_entha,tatooine_mospic_high_range,tatooine_pika_oasis,tatooine_bestine_outskirts,tatooine_bestine_market,tatooine_bestine_spaceport,tatooine_bestine_garrison
 Cleared=
-UpgradePoints=0
+UpgradePoints=1
 ForcePoints=0
-CompletedChecks=
+CompletedChecks=talk_medicine
