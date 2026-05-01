@@ -46,7 +46,7 @@ public class ImportContext
     };
     private static readonly HashSet<string> ShippedSpecies = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Human","Bothan","Mon Calamari","Trandoshan","Synthoid","Rodian","Zabrak","Wookie","Green-Ones"
+        "Human","Bothan","Mon Calamari","Trandoshan","Synthoid","Rodian","Zabrak","Wookiee","Green-Ones"
     };
     private static readonly HashSet<string> ShippedRoles = new(StringComparer.OrdinalIgnoreCase)
     {

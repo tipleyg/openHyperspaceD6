@@ -570,7 +570,7 @@ public static partial class LocationData
                 "The unmistakable, mushroom-shaped domes of Jabba's palace encompass the entire horizon as you stand outside its doors.",
                 "The difficult pathways to get to the upper levels and rancor pit below means one way in and three ways out: dead, alive, or on carbon.",
                 "The sand-colored buildings take on red hues in the sunset.",
-                "A Gamorrean guard in leather armor and wookie furs, relieves a pair of Klatooinians for the afternoon shift.",
+                "A Gamorrean guard in leather armor and Wookiee furs, relieves a pair of Klatooinians for the afternoon shift.",
             },
             PlanetName = "Tatooine",
             StarSystemName = "Tatoo System",

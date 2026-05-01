@@ -150,7 +150,7 @@ public static partial class SpeciesData
         },
         new Species
         {
-            Name = "Wookie",
+            Name = "Wookiee",
             Description = "Imposing, bear-like bipeds know for their strength and intimidating size.",
             BaseAttributes = new()
             {
